@@ -1,0 +1,17 @@
+bandwidth: 0.2
+cutoff: 1
+filepath: C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3\data\2025-08-12_iso-ne_dataset.parquet
+fuzzy: false
+fuzzy_std: 0.01
+groupby: Masked Lead Participant ID
+market: iso-ne
+max_depth: 40
+n_estimators: 100
+s_col: rsi
+seed: 21
+unit_dummy: false
+x_cols:
+- ref_level
+- gas_prices
+- load_fcst
+- temperature

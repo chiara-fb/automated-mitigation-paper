@@ -1,0 +1,6 @@
+doubleml[RDD] == 0.10.0
+pandas == 2.2.2
+numpy == 1.18.0
+scikit-learn == 0.24.0
+pyarrow == 21.0.0
+pyyaml == 6.0

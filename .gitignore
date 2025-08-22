@@ -1,0 +1,4 @@
+venv/
+figures/
+xx_archive/
+**/__pycache__/
