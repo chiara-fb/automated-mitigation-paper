@@ -1,4 +1,10 @@
 
+"""
+
+Here we compute the bidder-level analysis for NYISO and ISO-NE data with double ML.
+
+"""
+
 from tqdm import tqdm 
 import pandas as pd, numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
@@ -17,7 +23,6 @@ class RegressionDiscontinuity:
     def __init__(self, cfg):
         self.cfg = cfg
 
-    ### DOES ###
     def fit_regression(self, df):
         """
         Fit RDD regression.

@@ -1,3 +1,9 @@
+
+
+# Here we compute the market-level analysis for ISO-NE data w/o double ML.
+
+
+
 library(dplyr)
 library(ggplot2)
 library(matrixcalc)
@@ -22,16 +28,16 @@ source_python("utils.py")
 setwd("C:\\Users\\c.fusarbassini\\OneDrive - Hertie School\\25 ML-Strom\\2 Literatur & Research ideas\\AP 3\\data")
 data <- read_parquet("2025-08-12_iso-ne_dataset.parquet")
 attach(data)
-# Add company fixed effects
-data$company <- as.factor(data$"Masked Lead Participant ID")
+# Add bidder fixed effects
+data$bidder <- as.factor(data$"Masked Lead Participant ID")
 
 
 # Set parameters
 threshold <- 1
-bandwidth <- c(0.1, 0.2)
+bandwidth <- c(0.2, 0.5) #c(0.1, 0.2, 0.5)
 std_cont <- 0.05
 std_discr <- 0.01
-seed <- 21
+seed <- 15
 covs <- c("ref_level", "gas_prices")
 
 ### SCORE ###
@@ -51,13 +57,18 @@ subset2 <- data[data$score > - bandwidth[2] & data$score < bandwidth[2], ]
 
 ### RDD ###
 # Estimate the sharp RDD model with fixed effects with narrow and medium bandwidths
-sharp_rdd <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + "), paste("| company")))
+sharp_rdd <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + "), paste("| bidder")))
 s1 <- feols(sharp_rdd, data = subset1)
 s2 <- feols(sharp_rdd, data = subset2)
 
 # Estimate the fuzzy RDD models with fixed effects with medium bandwidth
-fuzzy_cont_rdd <- as.formula(paste("max_bid ~ treat_fuzzy_cont + score + treat_fuzzy_cont:score +", paste(covs, collapse = " + "), paste("| company")))
-fuzzy_discr_rdd <- as.formula(paste("max_bid ~ treat_fuzzy_discr + score + treat_fuzzy_discr:score +", paste(covs, collapse = " + "), paste("| company")))
-fc2 <- feols(fuzzy_cont_rdd, data = subset2)
-fd2 <- feols(fuzzy_discr_rdd, data = subset2)
+fuzzy_cont_rdd <- as.formula(paste("max_bid ~ treat_fuzzy_cont + score + treat_fuzzy_cont:score +", paste(covs, collapse = " + "), paste("| bidder")))
+fuzzy_discr_rdd <- as.formula(paste("max_bid ~ treat_fuzzy_discr + score + treat_fuzzy_discr:score +", paste(covs, collapse = " + "), paste("| bidder")))
+fc1 <- feols(fuzzy_cont_rdd, data = subset1)
+fd1 <- feols(fuzzy_discr_rdd, data = subset1)
+
+etable(s1, s1, fc1, fd1)
+
+
+
 

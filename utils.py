@@ -5,26 +5,25 @@ from scipy.stats import norm, bernoulli, uniform
 
 def fuzzy_prob(centered_x:list|np.ndarray, 
                std=0.1, # Uncertainty around the cutoff
-               cutoff_prob=0.8) -> np.ndarray: # Expected value of treatment at the cutoff
+               ) -> np.ndarray: # Expected value of treatment at the cutoff
     """Define treatment probability for fuzzy design"""
     
     centered_x = np.array(centered_x)
-    const = norm.ppf(cutoff_prob) # constant to adjust the probability at the cutoff
-    prob = norm.cdf(centered_x / std + const)
-
+    #const = norm.ppf(cutoff_prob) # constant to adjust the probability at the cutoff
+    #prob = norm.cdf(centered_x / std + const)
+    prob = norm.cdf(centered_x / std)
     return prob
 
 
 def fuzzy_treatment_assignment(centered_x:list|np.ndarray, 
                                std=0.1, # Uncertainty around the cutoff
-                               cutoff_prob=0.8, # Expected value of treatment at the cutoff
                                seed=None) -> np.ndarray: # seed for reproducibility
     """
     Assigns treatment based on a fuzzy design around a cutoff.
     The treatment is always assigned to the right of the cutoff.
     """
 
-    prob = fuzzy_prob(centered_x, std=std, cutoff_prob=cutoff_prob)
+    prob = fuzzy_prob(centered_x, std=std)
     rng = np.random.default_rng(seed=int(seed)) # set seed
     treat_assigned = bernoulli.rvs(p=prob, random_state=rng)
     #treat_assigned = pd.Series(treat_assigned, index=centered_x.index)
