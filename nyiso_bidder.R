@@ -34,10 +34,8 @@ data$unit <- as.factor(data$unit)
 
 # Set parameters
 threshold <- 0.04
-bandwidth <- c(0.2, 3) # choose bandwidths for the RDD
-std_cont <- 0.05
-std_discr <- 0.01
-seed <- 15
+bandwidth <- c(3, 20) # choose bandwidths for the RDD c(0.2, 3, 20)
+std <- 0.01 # 0.05
 covs <- c("ref_level", "gas_prices")
 multicovs <- c("ref_level", "gas_prices", "load_fcst", "temperature")
 
@@ -48,12 +46,8 @@ data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
 
 ### TREATMENT ###
 data$treatment <- ifelse(data$score <= 0, 0, 1) # compute sharp treatment variable
-data$treat_fuzzy_cont <- fuzzy_prob(data$score, std=std_cont) # calculate the probability of treatment
-data$treat_fuzzy_discr <- fuzzy_treatment_assignment(data$score, std=std_discr, seed=seed) # randomiz according to the probability of treatment
+data$treat_fuzzy_cont <- fuzzy_prob(data$score, std=std) # calculate the probability of treatment
 
-### BANDWIDTH ###
-# choose only data within a certain range from the threshold to estimate the local treatment effect
-subset2 <- data[data$score > - bandwidth[2] & data$score < bandwidth[2], ]
 
 ### RDD ###
 # Estimate the sharp RDD model with medium bandwidths
@@ -134,4 +128,6 @@ for (model_name in names(models)) {
 
 }
 
+#dropna
+all_results <- na.omit(all_results)
 write.xlsx(all_results, "nyiso_results.xlsx")

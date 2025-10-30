@@ -34,9 +34,7 @@ data$bidder <- as.factor(data$"Masked Lead Participant ID")
 # Set parameters
 threshold <- 0.04
 bandwidth <- c(3, 20) # choose bandwidths for the RDD # c(0.2, 3, 20) 
-std_cont <- 0.05
-std_discr <- 0.01
-seed <- 15
+std <- 0.01 # 0.05
 covs <- c("ref_level", "gas_prices")
 
 ### SCORE ###
@@ -52,8 +50,7 @@ data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
 
 ### TREATMENT ###
 data$treatment <- ifelse(data$score <= 0, 0, 1) # compute sharp treatment variable
-data$treat_fuzzy_cont <- fuzzy_prob(data$score, std=std_cont) # calculate the probability of treatment
-data$treat_fuzzy_discr <- fuzzy_treatment_assignment(data$score, std=std_discr, seed=seed) # randomiz according to the probability of treatment
+data$treat_fuzzy <- fuzzy_prob(data$score, std=std) # calculate the probability of treatment
 
 ### BANDWIDTH ###
 # choose only data within a certain range from the threshold to estimate the local treatment effect
@@ -63,14 +60,11 @@ subset2 <- data[data$score > - bandwidth[2] & data$score < bandwidth[2], ]
 ### RDD ###
 # Estimate the sharp RDD model with fixed effects with narrow and medium bandwidths
 sharp_rdd <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + "), paste("| bidder")))
-s1 <- feols(sharp_rdd, data = subset1)
-s2 <- feols(sharp_rdd, data = subset2)
+local <- feols(sharp_rdd, data = subset1)
+wide <- feols(sharp_rdd, data = subset2)
 
 # Estimate the fuzzy RDD models with fixed effects with medium bandwidth
-fuzzy_cont_rdd <- as.formula(paste("max_bid ~ treat_fuzzy_cont + score + treat_fuzzy_cont:score +", paste(covs, collapse = " + "), paste("| bidder")))
-fuzzy_discr_rdd <- as.formula(paste("max_bid ~ treat_fuzzy_discr + score + treat_fuzzy_discr:score +", paste(covs, collapse = " + "), paste("| bidder")))
-fc1 <- feols(fuzzy_cont_rdd, data = subset1)
-fd1 <- feols(fuzzy_discr_rdd, data = subset1)
+fuzzy_rdd <- as.formula(paste("max_bid ~ treat_fuzzy + score + treat_fuzzy:score +", paste(covs, collapse = " + "), paste("| bidder")))
+fuzzy <- feols(fuzzy_rdd, data = subset1)
 
-
-etable(s1, s2, fc1, fd1)
+etable(local, fuzzy, wide)

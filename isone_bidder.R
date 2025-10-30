@@ -33,13 +33,10 @@ data <- data %>% rename(bidder = "Masked Lead Participant ID", unit = "Masked As
 data$unit <- as.factor(data$unit)
 
 
-
 # Set parameters
 threshold <- 1
 bandwidth <- c(0.2, 0.5) # c(0.1, 0.2, 0.5)
-std_cont <- 0.05
-std_discr <- 0.01
-seed <- 15
+std <- 0.01 # 0.05
 covs <- c("ref_level", "gas_prices")
 multicovs <- c("ref_level", "gas_prices", "load_fcst", "temperature")
 
@@ -50,13 +47,12 @@ data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
 
 ### TREATMENT ###
 data$treatment <- ifelse(data$score <= 0, 0, 1) # compute sharp treatment variable
-data$treat_fuzzy_cont <- fuzzy_prob(data$score, std=std_cont) # calculate the probability of treatment
-data$treat_fuzzy_discr <- fuzzy_treatment_assignment(data$score, std=std_discr, seed=seed) # randomiz according to the probability of treatment
+data$treat_fuzzy <- fuzzy_prob(data$score, std=std) # calculate the probability of treatment
 
 ### RDD ###
 # Estimate the sharp RDD model with medium bandwidths
-main <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + ")))
-fuzzy <- as.formula(paste("max_bid ~ treat_fuzzy_cont + score + treat_fuzzy_cont:score +", paste(covs, collapse = " + ")))
+local <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + ")))
+fuzzy <- as.formula(paste("max_bid ~ treat_fuzzy + score + treat_fuzzy:score +", paste(covs, collapse = " + ")))
 unit <- as.formula(paste("max_bid ~ treatment + score + treatment:score + unit +", paste(covs, collapse = " + ")))
 multi <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(multicovs, collapse = " + ")))
 
@@ -67,8 +63,8 @@ bidders <- group_keys(bidder_groups)
 n <- nrow(bidders)
 
 models <- list(
-  main = main,
-  wide = main, # same specification but broader bandwidth
+  local = local,
+  wide = local, # same specification but broader bandwidth
   fuzzy = fuzzy,
   unit = unit,
   multi = multi
@@ -99,12 +95,12 @@ for (model_name in names(models)) {
 
         # TREATMENT VARIABLE CHANGES NAME IN FUZZY SPECIFICATION
         if (model_name == "fuzzy") {
-            treat_var <- "treat_fuzzy_cont"
+            treat_var <- "treat_fuzzy"
         
         # NO NEED FOR DUMMY IF BIDDER ONLY OWNS ONE UNIT
         } else if (model_name == "unit" & length(unique(bidder_data$unit)) == 1) {
             treat_var <- "treatment"
-            model_spec <- main
+            model_spec <- local
         
         } else if (model_name == "wide") {
             bw <- bandwidth[2]
@@ -132,4 +128,5 @@ for (model_name in names(models)) {
 
 }
 
+all_results <- na.omit(all_results)
 write.xlsx(all_results, "isone_results.xlsx")
