@@ -37,20 +37,18 @@ bandwidth <- c(3, 20) # choose bandwidths for the RDD # c(0.2, 3, 20)
 std <- 0.01 # 0.05
 covs <- c("ref_level", "gas_prices")
 
-### SCORE ###
+### SCORE AND TREATMENT ###
 #implement a score variable that is centered around 0: left is positive, to the right is negative
 ## main specification
 data$score <- data$avg_cong_1h_lag - threshold
-## test impact of temporal error
-#data$score <- data$avg_cong - threshold
-## test impact of spatial error
-#data$score <- data$max_cong - threshold
-#data$score <- data$max_cong_1h_lag - threshold
-data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
-
-### TREATMENT ###
 data$treatment <- ifelse(data$score <= 0, 0, 1) # compute sharp treatment variable
 data$treat_fuzzy <- fuzzy_prob(data$score, std=std) # calculate the probability of treatment
+data$score_no_lag <- data$avg_cong - threshold
+data$treat_no_lag <- ifelse(data$score_no_lag <= 0, 0, 1) # compute sharp treatment variable
+data$score_max <- data$max_cong_1h_lag - threshold
+data$treat_max <- ifelse(data$score_max <= 0, 0, 1) # compute sharp treatment variable
+
+data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
 
 ### BANDWIDTH ###
 # choose only data within a certain range from the threshold to estimate the local treatment effect
@@ -59,12 +57,24 @@ subset2 <- data[data$score > - bandwidth[2] & data$score < bandwidth[2], ]
 
 ### RDD ###
 # Estimate the sharp RDD model with fixed effects with narrow and medium bandwidths
-sharp_rdd <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + "), paste("| bidder")))
-local <- feols(sharp_rdd, data = subset1)
-wide <- feols(sharp_rdd, data = subset2)
+rdd_sharp <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + "), paste("| bidder")))
+local <- feols(rdd_sharp, data = subset1)
+wide <- feols(rdd_sharp, data = subset2)
 
 # Estimate the fuzzy RDD models with fixed effects with medium bandwidth
-fuzzy_rdd <- as.formula(paste("max_bid ~ treat_fuzzy + score + treat_fuzzy:score +", paste(covs, collapse = " + "), paste("| bidder")))
-fuzzy <- feols(fuzzy_rdd, data = subset1)
+rdd_fuzzy <- as.formula(paste("max_bid ~ treat_fuzzy + score + treat_fuzzy:score +", paste(covs, collapse = " + "), paste("| bidder")))
+fuzzy <- feols(rdd_fuzzy, data = subset1)
 
 etable(local, fuzzy, wide)
+
+### SENSITIVITY ANALYSES ###
+rdd_no_lag <- as.formula(paste("max_bid ~ treat_no_lag + score_no_lag + treat_no_lag:score +", paste(covs, collapse = " + "), paste("| bidder")))
+no_lag <- feols(rdd_no_lag, data = subset1)
+# test impact of spatial error
+rdd_max <- as.formula(paste("max_bid ~ treat_max + score_max + treat_max:score +", paste(covs, collapse = " + "), paste("| bidder")))
+max <- feols(rdd_max, data = subset1)
+# test adding square term to regression
+rdd_squared <- as.formula(paste("max_bid ~ treatment + score + treatment:score + I(score^2) + treatment:I(score^2) +", paste(covs, collapse = " + "), paste("| bidder")))
+squared <- feols(rdd_squared, data = subset1)
+
+etable(no_lag, max, squared)

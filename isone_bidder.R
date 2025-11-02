@@ -51,7 +51,7 @@ data$treat_fuzzy <- fuzzy_prob(data$score, std=std) # calculate the probability 
 
 ### RDD ###
 # Estimate the sharp RDD model with medium bandwidths
-local <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + ")))
+main <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(covs, collapse = " + ")))
 fuzzy <- as.formula(paste("max_bid ~ treat_fuzzy + score + treat_fuzzy:score +", paste(covs, collapse = " + ")))
 unit <- as.formula(paste("max_bid ~ treatment + score + treatment:score + unit +", paste(covs, collapse = " + ")))
 multi <- as.formula(paste("max_bid ~ treatment + score + treatment:score +", paste(multicovs, collapse = " + ")))
@@ -63,8 +63,8 @@ bidders <- group_keys(bidder_groups)
 n <- nrow(bidders)
 
 models <- list(
-  local = local,
-  wide = local, # same specification but broader bandwidth
+  local = main,
+  wide = main, # same specification but broader bandwidth
   fuzzy = fuzzy,
   unit = unit,
   multi = multi

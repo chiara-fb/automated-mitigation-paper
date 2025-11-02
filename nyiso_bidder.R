@@ -63,7 +63,7 @@ bidders <- group_keys(bidder_groups)
 n <- nrow(bidders)
 
 models <- list(
-  main = main,
+  local = main,
   wide = main, # same specification but broader bandwidth
   fuzzy = fuzzy,
   unit = unit,
@@ -130,4 +130,4 @@ for (model_name in names(models)) {
 
 #dropna
 all_results <- na.omit(all_results)
-write.xlsx(all_results, "nyiso_results.xlsx")
+#write.xlsx(all_results, "nyiso_results.xlsx")
