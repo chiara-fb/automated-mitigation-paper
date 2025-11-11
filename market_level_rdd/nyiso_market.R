@@ -24,7 +24,7 @@ p_load(rdd,lfe,estimatr,boot, bootstrap, fixest)
 
 # Data import (change the path accordingly)
 setwd("C:\\Users\\c.fusarbassini\\Desktop\\automated_mitigation_paper")
-source_python("utils.py")
+source_python("amp_tests\\utils.py")
 setwd("C:\\Users\\c.fusarbassini\\OneDrive - Hertie School\\25 ML-Strom\\2 Literatur & Research ideas\\AP 3\\data")
 data <- read_parquet("2025-08-12_nyiso_dataset.parquet")
 attach(data)
@@ -76,5 +76,12 @@ max <- feols(rdd_max, data = subset1)
 # test adding square term to regression
 rdd_squared <- as.formula(paste("max_bid ~ treatment + score + treatment:score + I(score^2) + treatment:I(score^2) +", paste(covs, collapse = " + "), paste("| bidder")))
 squared <- feols(rdd_squared, data = subset1)
+
+
+sensitivity_bandwidth <- c(1.5, 4.5)
+subset3 <- data[data$score > - sensitivity_bandwidth[1] & data$score < sensitivity_bandwidth[1], ]
+subset4 <- data[data$score > - sensitivity_bandwidth[2] & data$score < sensitivity_bandwidth[2], ]
+robust_narrow <- feols(rdd_sharp, data = subset3)
+robust_wide <- feols(rdd_sharp, data = subset4)
 
 etable(no_lag, max, squared)

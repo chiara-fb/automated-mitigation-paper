@@ -10,7 +10,7 @@ import pandas as pd, numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 import doubleml as dml
 from doubleml.rdd import RDFlex
-from utils import sharp_treatment_assignment, fuzzy_treatment_assignment
+from amp_tests.utils import sharp_treatment_assignment, fuzzy_treatment_assignment
 import yaml
 import warnings
 from datetime import datetime

@@ -1,0 +1,5 @@
+figure.figsize: [12, 6]
+axes.titlesize: 24
+figure.titlesize: 24
+font.size: 16
+legend.facecolor: white

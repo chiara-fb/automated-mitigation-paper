@@ -24,7 +24,7 @@ p_load(rdd,lfe,estimatr,boot, bootstrap, fixest)
 
 # Data import (change the path accordingly)
 setwd("C:\\Users\\c.fusarbassini\\Desktop\\automated_mitigation_paper")
-source_python("utils.py")
+source_python("amp_tests\\utils.py")
 setwd("C:\\Users\\c.fusarbassini\\OneDrive - Hertie School\\25 ML-Strom\\2 Literatur & Research ideas\\AP 3\\data")
 data <- read_parquet("2025-08-12_iso-ne_dataset.parquet")
 attach(data)
