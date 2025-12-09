@@ -75,5 +75,7 @@ robust_wide <- feols(rdd_sharp, data = subset4)
 # test adding square term to regression
 rdd_squared <- as.formula(paste("max_bid ~ treatment + score + treatment:score + I(score^2) + treatment:I(score^2) + ", paste(covs, collapse = " + "), paste("| bidder")))
 squared <- feols(rdd_squared, data = subset1)
-
-etable(robust_narrow, robust_wide, squared)
+# test adding square gas prices
+rdd_gas2 <- as.formula(paste("max_bid ~ treatment + score + treatment:score + I(gas_prices^2) +", paste(covs, collapse = " + "), paste("| bidder")))
+squared_gas <- feols(rdd_gas2, data = subset1)
+etable(robust_narrow, robust_wide, squared, squared_gas)

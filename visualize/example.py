@@ -7,11 +7,14 @@ import matplotlib as mpl
 from pathlib import Path
 import yaml
 
+
+plt.style.use('ggplot')
+
 with open("visualize/matplotlib_config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 mpl.rcParams.update(config)
-plt.style.use('ggplot')
+
 
 cmap = mcolors.LinearSegmentedColormap.from_list('white_gray', ['white', 'gray'])
 
@@ -97,4 +100,4 @@ def plot_example() -> tuple[plt.Figure, plt.Axes]:
 if __name__ == "__main__":
     fig, ax = plot_example()
     path = Path(r"C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3")
-    fig.savefig(path / "pictures" / "example4.svg", bbox_inches='tight')
+    fig.savefig(path / "pictures" / "example5.svg", bbox_inches='tight')

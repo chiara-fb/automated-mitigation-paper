@@ -7,11 +7,15 @@ import seaborn as sns
 from pathlib import Path
 import yaml
 
+
+plt.style.use('ggplot')
+
 with open("visualize/matplotlib_config.yaml", "r") as f:
     config = yaml.safe_load(f)
 
 mpl.rcParams.update(config)
-plt.style.use('ggplot')
+
+
 
 
 path = Path(r"C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3")
@@ -93,16 +97,20 @@ def bids_violinplot(isone_data: pd.DataFrame, nyiso_data: pd.DataFrame, year=201
     """
     
     fig, (ax0, ax1) = plt.subplots(1,2, tight_layout=True, sharey=True)    
-    isone_data['Treatment (RSI < 1)'] = isone_data['rsi'] < 1
-    nyiso_data['Treatment (congestion > 0.04)'] = nyiso_data['avg_cong_1h_lag'] > 0.04
+    isone_data['Treatment (RSI ≤ 1)'] = isone_data['rsi'] <= 1
+    nyiso_data['Treatment (congestion ≥ 0.04)'] = nyiso_data['avg_cong_1h_lag'] >= 0.04
 
-    sns.violinplot(data=isone_data, x='Treatment (RSI < 1)', y='max_bid', hue='Treatment (RSI < 1)', ax=ax0, legend=False)
-    sns.violinplot(data=nyiso_data, x='Treatment (congestion > 0.04)', y='max_bid', hue='Treatment (congestion > 0.04)', ax=ax1, legend=False)
+    sns.violinplot(data=isone_data, x='Treatment (RSI ≤ 1)', y='max_bid', hue='Treatment (RSI ≤ 1)', ax=ax0, legend=False)
+    sns.violinplot(data=nyiso_data, x='Treatment (congestion ≥ 0.04)', y='max_bid', hue='Treatment (congestion ≥ 0.04)', ax=ax1, legend=False)
     #fig.suptitle(f'Maximum bid prices in ISO-NE and NYISO ({year})')
     #ax0.set_title('Maximum bid')
-    ax0.set_title('ISO-NE')
-    ax1.set_title('NYISO')
-    ax0.set_ylabel('Maximum bid price ($/MWh)')
+    ax0.set_title('ISO-NE', fontsize=24)
+    ax1.set_title('NYISO', fontsize=24)
+    ax0.set_xlabel('Treatment (RSI ≤ 1)', fontsize=16)
+    ax1.set_xlabel('Treatment (congestion ≥ 0.04)', fontsize=16)
+    ax0.set_ylabel('Maximum bid price ($/MWh)', fontsize=16)
+    ax0.tick_params(axis='both', labelsize=16)
+    ax1.tick_params(axis='both', labelsize=16)
 
     #ax1.set_title('Average bid')
 
@@ -137,13 +145,13 @@ def plot_ref_level(df, name):
             Returns: tuple (fig, ax).
         """
         fig, ax = plt.subplots(tight_layout=True)
-        dfc = df.copy().droplevel([1,2])
+        dfc = df.copy().droplevel([1])
         dfc['ref_level'].plot(ax=ax, label='Reference level')
         dfc['max_bid'].plot(ax=ax, label='Maximum bid')
         ax.set_ylabel('$/MWh')
         ax.set_xlabel('')
         ax.set_title(f"Generation unit ID: {name}")
-        ax.legend()
+        ax.legend(loc="lower right")
 
         return fig, ax
 
@@ -156,8 +164,8 @@ if __name__ == "__main__":
     nyiso_bids = pd.read_parquet(path / "data" / "2025-08-12_nyiso_dataset.parquet")
     nyiso_bids = nyiso_bids[nyiso_bids.index.get_level_values('DateTime').year == 2019]
     fig, axes = bids_violinplot(isone_bids, nyiso_bids, year=2019)
-    fig.savefig(path / "pictures" / "bids_violinplot2.svg", bbox_inches='tight')
+    fig.savefig(path / "pictures" / "bids_violinplot.pdf", bbox_inches='tight')
 
-    # fig, ax = max_boxplot(corr_df, year=2019)
-    # fig.savefig(path / "pictures" / "max_boxplot.svg", bbox_inches='tight')
-    # corr_df.to_excel('correlation.xlsx')
+    df = isone_bids.xs(44623, level='Masked Asset ID')
+    ref_fig, ref_ax = plot_ref_level(df, "44623")
+    ref_fig.savefig(path / "pictures" / "ref_level.pdf", bbox_inches='tight')
