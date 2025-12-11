@@ -43,7 +43,7 @@ def compute_statistics(dataset):
 
 if __name__ == "__main__":
 
-    path = Path(r"C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3\data")
+    path = Path("data")
 
     for market in ["iso-ne", "nyiso"]:
 

@@ -22,9 +22,8 @@ p_load(tictoc,tidyverse,broom,data.table,matrixStats, MASS, foreign, stargazer, 
 p_load(rdd,lfe,estimatr,boot, bootstrap, fixest)
 
 # Data import (change the path accordingly)
-setwd("C:\\Users\\c.fusarbassini\\Desktop\\automated_mitigation_paper")
 source_python("amp_tests\\utils.py")
-setwd("C:\\Users\\c.fusarbassini\\OneDrive - Hertie School\\25 ML-Strom\\2 Literatur & Research ideas\\AP 3\\data")
+setwd("data")
 data <- read_parquet("2025-08-12_nyiso_dataset.parquet")
 attach(data)
 

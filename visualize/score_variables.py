@@ -18,14 +18,12 @@ with open("visualize/matplotlib_config.yaml", "r") as f:
 
 mpl.rcParams.update(config)
 
-# Data import (change the path accordingly)
-path = Path(r"C:\\Users\\c.fusarbassini\\OneDrive - Hertie School\\25 ML-Strom\\2 Literatur & Research ideas\\AP 3\\data")
 
 if __name__ == "__main__":
-    iso_ne = pd.read_parquet(path / "2025-08-12_iso-ne_dataset.parquet")
+    iso_ne = pd.read_parquet("data/2025-08-12_iso-ne_dataset.parquet")
     iso_ne = iso_ne[iso_ne.index.get_level_values('DateTime').year == 2019]  # filter for the year 2019
 
-    nyiso = pd.read_parquet(path / "2025-08-12_nyiso_dataset.parquet")
+    nyiso = pd.read_parquet("data/2025-08-12_nyiso_dataset.parquet")
     nyiso = nyiso[nyiso.index.get_level_values('DateTime').year == 2019]  # filter for the year 2019
 
 

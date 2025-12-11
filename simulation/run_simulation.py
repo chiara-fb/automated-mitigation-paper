@@ -13,7 +13,7 @@ import numpy as np
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool
 
-FOLDER = r"C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3\data\ISO-NE"
+FOLDER = "data/isone_rawdata"
 
 
 def read_source(
@@ -166,12 +166,12 @@ def run_simulation(
 if __name__ == "__main__":
     # parse arguments
     # args = parser.parse_args()
-
+    #example usage 
     res = run_simulation(
         input_folder=FOLDER,
         start_str="2019-01-01",  # Start date for the simulation
         end_str="2020-01-01",  # End date for the simulation (not inclusive)
-        structural_threshold=np.inf,  # Threshold for structural test (change to make test stricter
+        structural_threshold=np.inf,  # Threshold for structural test (change to make test stricter)
         mitigate_conduct=True,  # Whether to mitigate bids
         rel_conduct_threshold=3,  # Relative threshold for mitigation (change to make mitigation stricter)
         abs_conduct_threshold=100, # Absolute threshold for mitigation (change to make mitigation stricter)

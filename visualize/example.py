@@ -99,5 +99,4 @@ def plot_example() -> tuple[plt.Figure, plt.Axes]:
 
 if __name__ == "__main__":
     fig, ax = plot_example()
-    path = Path(r"C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3")
-    fig.savefig(path / "pictures" / "example5.svg", bbox_inches='tight')
+    fig.savefig("example.svg", bbox_inches='tight')
