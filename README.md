@@ -1,7 +1,7 @@
 # **Paper code repository** 
 
 *"Strategic bidding with automated mitigation procedures in electricity markets"*
-Chiara Fusar Bassini, Jacqueline Adelowo, Priya L. Donti, Lynn H. Kaack
+Chiara Fusar Bassini, Jacqueline Adelowo, Priya L. Donti, Lynn H. Kaack.
 
 Content:
 - `amp_tests`: computes the score and treatment variables of the regression
