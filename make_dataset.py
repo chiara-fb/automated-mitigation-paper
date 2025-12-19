@@ -141,12 +141,11 @@ def make_covariates(bids:pd.DataFrame,
 
     return covs
 
-
+git 
 
 if __name__ == "__main__":
+    PATH = 'data'
     MARKET = 'ISO-NE' # 'ISO-NE' or 'NYISO'
-    PATH = Path(r'C:\Users\c.fusarbassini\OneDrive - Hertie School\25 ML-Strom\2 Literatur & Research ideas\AP 3\data')
-    
     rt_bids = pd.read_parquet(PATH / MARKET / 'rt_bids_2018-2019.parquet')
     da_bids = pd.read_parquet(PATH / MARKET / 'da_bids_2018-2019.parquet')
     da_must_take = da_bids['Must Take Energy'].groupby('DateTime').sum()
