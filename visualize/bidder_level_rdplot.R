@@ -50,7 +50,7 @@ data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
 
 data$treatment <- ifelse(data$score <= 0, 0, 1) # compute sharp treatment variable
 subset_data <- data[data$score > - bw & data$score < bw, ]
-
+subset_data <- subset_data[subset_data$bidder == 840426, ]
 
 ### RDD ###
 # Estimate the sharp RDD model with medium bandwidths
@@ -77,9 +77,15 @@ line <- y ~ poly(x, 1, raw = TRUE)
             {    
             model <- lm(main, data = bidder_data)
             p <- ggplot(bidder_data, aes(x = rsi, y = max_bid, group = as.factor(treatment))) +
-              theme(
+                theme_bw(base_size = 12) + theme(
                 text = element_text(size = 12),        # base font size
                 title = element_text(hjust=0.5, size=24),
+                axis.line  = element_line(color = "grey50"),
+                axis.ticks = element_line(color = "grey50"),
+                panel.background = element_rect(fill = "white"),
+                plot.background  = element_rect(fill = "white"),
+                panel.grid.major = element_line(color = "grey50"),
+                panel.grid.minor = element_line(color = "grey50")
               ) + 
             geom_point(size = 2) + 
             geom_smooth(method = "lm", se = TRUE, formula = line, linewidth = 2) +

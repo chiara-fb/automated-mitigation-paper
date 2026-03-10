@@ -32,6 +32,7 @@ data <- data %>% rename(bidder = "Masked Lead Participant ID", unit = "Masked As
 data$unit <- as.factor(data$unit)
 
 
+
 # Set parameters
 threshold <- 1
 bandwidth <- c(0.2, 0.5) # c(0.1, 0.2, 0.5)

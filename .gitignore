@@ -2,3 +2,4 @@ venv/
 figures/
 xx_archive/
 **/__pycache__/
+*.xlsx

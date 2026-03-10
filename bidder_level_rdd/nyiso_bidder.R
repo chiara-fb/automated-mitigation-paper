@@ -32,7 +32,7 @@ data <- data %>% rename(bidder = "Masked Lead Participant ID", unit = "Masked As
 data$unit <- as.factor(data$unit)
 
 # Set parameters
-threshold <- 0.04
+threshold <- 5.04
 bandwidth <- c(3, 20) # choose bandwidths for the RDD c(0.2, 3, 20)
 std <- 0.01 # 0.05
 covs <- c("ref_level", "gas_prices")
@@ -129,4 +129,5 @@ for (model_name in names(models)) {
 
 #dropna
 all_results <- na.omit(all_results)
-#write.xlsx(all_results, "nyiso_results.xlsx")
+# write.xlsx(all_results, "nyiso_results.xlsx")
+write.xlsx(all_results, paste0("nyiso_results_", threshold,".xlsx"))

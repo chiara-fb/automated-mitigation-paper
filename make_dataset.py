@@ -141,7 +141,7 @@ def make_covariates(bids:pd.DataFrame,
 
     return covs
 
-git 
+
 
 if __name__ == "__main__":
     PATH = 'data'

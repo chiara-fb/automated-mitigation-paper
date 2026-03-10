@@ -25,11 +25,11 @@ p_load(rdd,lfe,estimatr,boot, bootstrap, fixest)
 # Data import (change the path accordingly)
 source_python("amp_tests\\utils.py")
 setwd("data")
-data <- read_parquet("2025-08-12_iso-ne_dataset.parquet")
+# data <- read_parquet("2025-08-12_iso-ne_dataset.parquet")
+data <- read_parquet("2025-08-12_iso-ne_dataset_with_lags.parquet")
 attach(data)
 # Add bidder fixed effects
 data$bidder <- as.factor(data$"Masked Lead Participant ID")
-
 
 # Set parameters
 threshold <- 1
@@ -41,6 +41,7 @@ covs <- c("ref_level", "gas_prices")
 #implement a score variable that is centered around 0: left is positive, to the right is negative
 data$score <- threshold - data$rsi
 data <- data[year(data$DateTime) == 2019, ] # filter for the year 2019
+
 
 ### TREATMENT ###
 data$treatment <- ifelse(data$score <= 0, 0, 1) # compute sharp treatment variable
@@ -78,3 +79,19 @@ squared <- feols(rdd_squared, data = subset1)
 rdd_gas2 <- as.formula(paste("max_bid ~ treatment + score + treatment:score + I(gas_prices^2) +", paste(covs, collapse = " + "), paste("| bidder")))
 squared_gas <- feols(rdd_gas2, data = subset1)
 etable(robust_narrow, robust_wide, squared, squared_gas)
+
+### REVIEW ANALYSES ###
+
+data$score_lag <- threshold - data$rsi_1h_lag
+data$treatment_lag <- ifelse(data$score_lag <= 0, 0, 1) # compute sharp treatment variable
+data$treat_fuzzy_lag <- fuzzy_prob(data$score_lag, std=std) # calculate the probability of treatment
+subset1_lag <- data[data$score_lag > - bandwidth[1] & data$score_lag < bandwidth[1], ]
+subset2_lag <- data[data$score_lag > - bandwidth[2] & data$score_lag < bandwidth[2], ]
+
+rdd_sharp_lag <- as.formula(paste("max_bid ~ treatment_lag + score_lag + treatment_lag:score_lag +", paste(covs, collapse = " + "), paste("| bidder")))
+local_lag <- feols(rdd_sharp_lag, data = subset1_lag)
+wide_lag <- feols(rdd_sharp_lag, data = subset2_lag)
+
+# Estimate the fuzzy RDD models with fixed effects with medium bandwidth
+rdd_fuzzy_lag <- as.formula(paste("max_bid ~ treat_fuzzy_lag + score_lag + treat_fuzzy_lag:score_lag +", paste(covs, collapse = " + "), paste("| bidder")))
+fuzzy_lag <- feols(rdd_fuzzy_lag, data = subset1_lag)
