@@ -91,7 +91,7 @@ def run_simulation(
         start=start_str, end=end_str, freq="h", inclusive="left")
 
     bids = read_source(
-        FILEPATH / "rt_bids_2018-2019.parquet", multiindex=True
+        FILEPATH / "rt_bids_2018-2019_-1.parquet", multiindex=True
     )
     rt_prices = read_source(FILEPATH / "rt_prices_2018-2019.parquet")
    
@@ -167,21 +167,31 @@ if __name__ == "__main__":
     # parse arguments
     # args = parser.parse_args()
     #example usage 
+    structural_threshold = 1 # np.inf
+    rel_conduct_threshold = 2
+    abs_conduct_threshold = 75
+    rel_impact_threshold = 1.75 # 2
+    abs_impact_threshold = 90 # 100
+
+    name = f"rsi_{structural_threshold}-conduct_abs_{abs_conduct_threshold}-conduct_rel_{rel_conduct_threshold}"
+
     res = run_simulation(
         input_folder=FOLDER,
         start_str="2019-01-01",  # Start date for the simulation
         end_str="2020-01-01",  # End date for the simulation (not inclusive)
-        structural_threshold=np.inf,  # Threshold for structural test (change to make test stricter)
-        mitigate_conduct=True,  # Whether to mitigate bids
-        rel_conduct_threshold=3,  # Relative threshold for mitigation (change to make mitigation stricter)
-        abs_conduct_threshold=100, # Absolute threshold for mitigation (change to make mitigation stricter)
+        structural_threshold=structural_threshold,  # Threshold for structural test (change to make test stricter)
+        mitigate_conduct=False,  # Whether to mitigate bids
+        rel_conduct_threshold=rel_conduct_threshold,  # Relative threshold for mitigation (change to make mitigation stricter)
+        abs_conduct_threshold=abs_conduct_threshold, # Absolute threshold for mitigation (change to make mitigation stricter)
     )
 
-    res.to_frame().to_parquet("output/e_no_impact.parquet")
     
-    a = pd.read_parquet("output/a.parquet")['price']
-    res = mitigate_impact(a, res, rel_impact_threshold=2, abs_impact_threshold=100)
-    res.to_frame().to_parquet("output/e.parquet")
 
+    res.to_frame().to_parquet(f"output/{name}.parquet") 
 
-    #TODO: in main, add a parameter to remove the pivotality test
+    no_amp = pd.read_parquet("output/no_amp.parquet")['price'] # in this run mitigate_conduct = False
+    res = mitigate_impact(no_amp, res, rel_impact_threshold=rel_impact_threshold, abs_impact_threshold=abs_impact_threshold)
+    name+= f"_impact_abs_{abs_impact_threshold}-impact_rel_{rel_impact_threshold}"
+    res.to_frame().to_parquet(f"output/{name}.parquet")
+
+    

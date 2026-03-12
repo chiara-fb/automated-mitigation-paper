@@ -109,7 +109,7 @@ def mitigate_bids(
     verbose: bool = True,
 ) -> pd.DataFrame:
 
-
+    bids["Max Price"] = bids.filter(regex="Segment [0-9]+ Price").max(axis=1)
     ### fill missing ref levels so that no unit is removed
     ref_fill = lambda x: x.ffill().bfill().fillna(default_ref)
     ref_levels = ref_levels.groupby('Masked Asset ID').transform(ref_fill)
@@ -118,11 +118,12 @@ def mitigate_bids(
     threshold = ref_levels.map(lambda x: min(x + abs_ref, x * rel_ref))
 
     print("Structural test (# bids):", pst.sum()) if verbose else None
+    cond = (bids["Max Price"] > threshold) & pst
     
     for col in bids.columns:
         # check whether unit is PST (structure) and bid is above ref level (conduct)
         if re.match("Segment [0-9]+ Price", col):
-            cond = (bids[col] > threshold) & pst
+            # cond = (bids[col] > threshold) & pst
             bids.loc[cond, col] = ref_levels[cond]
 
         else:
